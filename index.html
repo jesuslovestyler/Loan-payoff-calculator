@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Loan Payoff Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f6f3;
+        --surface: #ffffff;
+        --surface-2: #eef3ee;
+        --ink: #1d2b22;
+        --ink-soft: #4a5a4f;
+        --line: #d8e0d8;
+        --accent: #2e6b4f;
+        --accent-strong: #1f4d37;
+        --accent-soft: #e2efe5;
+        --good: #2e6b4f;
+        --warn-bg: #fdf3e3;
+        --warn-line: #e8cf9e;
+        --warn-ink: #6b4d12;
+        --shadow: 0 1px 2px rgba(29, 43, 34, 0.06), 0 8px 24px rgba(29, 43, 34, 0.06);
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121814;
+          --surface: #1b241e;
+          --surface-2: #232e27;
+          --ink: #e8efe9;
+          --ink-soft: #a9bbae;
+          --line: #33413a;
+          --accent: #7cc79b;
+          --accent-strong: #a5dcbc;
+          --accent-soft: #22392c;
+          --good: #7cc79b;
+          --warn-bg: #3a2f18;
+          --warn-line: #6e5a2c;
+          --warn-ink: #f0d9a0;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 17px;
+        line-height: 1.55;
+      }
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 20px 18px 48px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 26px;
+      }
+      .home-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 44px;
+        padding: 8px 18px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--ink);
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        box-shadow: var(--shadow);
+      }
+      .home-pill:hover { border-color: var(--accent); color: var(--accent-strong); }
+      .topbar-note {
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+      header.hero { margin-bottom: 26px; }
+      h1 {
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 600;
+        font-size: clamp(34px, 7vw, 48px);
+        line-height: 1.08;
+        margin: 0 0 10px;
+        letter-spacing: -0.01em;
+      }
+      .intro {
+        font-size: 19px;
+        color: var(--ink-soft);
+        margin: 0;
+        max-width: 34em;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .layout > * { min-width: 0; }
+      @media (min-width: 760px) {
+        .layout { grid-template-columns: 5fr 6fr; align-items: start; }
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      .card h2 {
+        font-family: "Newsreader", Georgia, serif;
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 16px;
+      }
+      .field { margin-bottom: 18px; }
+      .field:last-child { margin-bottom: 0; }
+      .field label {
+        display: block;
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 7px;
+      }
+      .field .hint {
+        font-weight: 400;
+        color: var(--ink-soft);
+        font-size: 13.5px;
+      }
+      .input-row {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        min-width: 0;
+        border: 1.5px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+      }
+      .input-row:focus-within { border-color: var(--accent); }
+      .input-row .affix {
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        background: var(--surface-2);
+        color: var(--ink-soft);
+        font-weight: 600;
+        font-size: 17px;
+        flex: 0 0 auto;
+      }
+      .input-row input {
+        flex: 1 1 0;
+        min-width: 0;
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 19px;
+        font-weight: 600;
+        padding: 14px 14px;
+        min-height: 56px;
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      .input-row input::-webkit-outer-spin-button,
+      .input-row input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .payoff-date {
+        font-family: "Newsreader", Georgia, serif;
+        font-size: clamp(32px, 6vw, 42px);
+        font-weight: 600;
+        line-height: 1.1;
+        margin: 2px 0 4px;
+        color: var(--accent-strong);
+      }
+      .payoff-sub {
+        color: var(--ink-soft);
+        margin: 0 0 18px;
+        font-size: 16px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .stat {
+        background: var(--surface-2);
+        border-radius: 10px;
+        padding: 14px 16px;
+        min-width: 0;
+      }
+      .stat .stat-label {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-bottom: 3px;
+      }
+      .stat .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .split {
+        margin-top: 18px;
+      }
+      .split-bar {
+        display: flex;
+        height: 14px;
+        border-radius: 7px;
+        overflow: hidden;
+        background: var(--surface-2);
+      }
+      .split-bar .seg-principal { background: var(--accent); }
+      .split-bar .seg-interest { background: #d9a441; }
+      @media (prefers-color-scheme: dark) {
+        .split-bar .seg-interest { background: #b9862f; }
+      }
+      .split-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        margin-top: 9px;
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+      .split-legend .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: baseline;
+      }
+      .dot-principal { background: var(--accent); }
+      .dot-interest { background: #d9a441; }
+      .compare {
+        margin-top: 18px;
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        border-radius: 10px;
+        padding: 16px 18px;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--accent-strong);
+        line-height: 1.45;
+      }
+      .compare .compare-detail {
+        display: block;
+        margin-top: 4px;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--ink-soft);
+      }
+      .notice {
+        margin-top: 18px;
+        border-radius: 10px;
+        padding: 16px 18px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .notice-warn {
+        background: var(--warn-bg);
+        border: 1px solid var(--warn-line);
+        color: var(--warn-ink);
+      }
+      .notice strong { font-weight: 700; }
+      .empty-state {
+        color: var(--ink-soft);
+        font-size: 17px;
+        margin: 6px 0 2px;
+      }
+      footer {
+        margin-top: 26px;
+        text-align: center;
+      }
+      .privacy-line {
+        font-size: 14px;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <a class="home-pill" href="https://jesuslovestyler.com/">⌂ Home</a>
+        <span class="topbar-note">Free tool · no sign-up</span>
+      </div>
+
+      <header class="hero">
+        <h1>Loan Payoff Calculator</h1>
+        <p class="intro">Every loan has a finish line. Find yours — and see what a little extra each month can do to bring it closer.</p>
+      </header>
+
+      <div class="layout">
+        <section class="card" aria-label="Your loan">
+          <h2>Your loan</h2>
+
+          <div class="field">
+            <label for="balance">Loan balance</label>
+            <div class="input-row">
+              <span class="affix" aria-hidden="true">$</span>
+              <input id="balance" type="number" inputmode="decimal" min="0" step="any" value="5000" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rate">Interest rate (APR) <span class="hint">per year</span></label>
+            <div class="input-row">
+              <input id="rate" type="number" inputmode="decimal" min="0" step="any" value="8" autocomplete="off" />
+              <span class="affix" aria-hidden="true">%</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="payment">Monthly payment</label>
+            <div class="input-row">
+              <span class="affix" aria-hidden="true">$</span>
+              <input id="payment" type="number" inputmode="decimal" min="0" step="any" value="150" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="extra">Extra paid each month <span class="hint">optional</span></label>
+            <div class="input-row">
+              <span class="affix" aria-hidden="true">$</span>
+              <input id="extra" type="number" inputmode="decimal" min="0" step="any" value="0" autocomplete="off" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Your payoff">
+          <h2>Your payoff</h2>
+          <div id="results" aria-live="polite">
+            <p class="empty-state" id="emptyState" hidden>Type your loan details and your finish line appears here.</p>
+
+            <div id="resultMain" hidden>
+              <div class="payoff-date" id="payoffDate">—</div>
+              <p class="payoff-sub" id="payoffSub">—</p>
+
+              <div class="stats">
+                <div class="stat">
+                  <div class="stat-label">Months to payoff</div>
+                  <div class="stat-value" id="statMonths">—</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Paid each month</div>
+                  <div class="stat-value" id="statMonthly">—</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Total interest</div>
+                  <div class="stat-value" id="statInterest">—</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Total cost</div>
+                  <div class="stat-value" id="statTotal">—</div>
+                </div>
+              </div>
+
+              <div class="split" id="splitWrap">
+                <div class="split-bar" role="img" id="splitBar" aria-label="">
+                  <div class="seg-principal" id="segPrincipal"></div>
+                  <div class="seg-interest" id="segInterest"></div>
+                </div>
+                <div class="split-legend">
+                  <span><span class="dot dot-principal"></span><span id="legendPrincipal">Principal</span></span>
+                  <span><span class="dot dot-interest"></span><span id="legendInterest">Interest</span></span>
+                </div>
+              </div>
+
+              <div class="compare" id="compareBox" hidden>
+                <span id="compareText"></span>
+                <span class="compare-detail" id="compareDetail"></span>
+              </div>
+            </div>
+
+            <div class="notice notice-warn" id="warnBox" hidden>
+              <strong>One kind heads-up:</strong> <span id="warnText"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer>
+        <p class="privacy-line">All the math happens right here on your device — nothing you type is sent anywhere.</p>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var els = {
+          balance: document.getElementById("balance"),
+          rate: document.getElementById("rate"),
+          payment: document.getElementById("payment"),
+          extra: document.getElementById("extra"),
+          emptyState: document.getElementById("emptyState"),
+          resultMain: document.getElementById("resultMain"),
+          payoffDate: document.getElementById("payoffDate"),
+          payoffSub: document.getElementById("payoffSub"),
+          statMonths: document.getElementById("statMonths"),
+          statMonthly: document.getElementById("statMonthly"),
+          statInterest: document.getElementById("statInterest"),
+          statTotal: document.getElementById("statTotal"),
+          splitWrap: document.getElementById("splitWrap"),
+          splitBar: document.getElementById("splitBar"),
+          segPrincipal: document.getElementById("segPrincipal"),
+          segInterest: document.getElementById("segInterest"),
+          legendPrincipal: document.getElementById("legendPrincipal"),
+          legendInterest: document.getElementById("legendInterest"),
+          compareBox: document.getElementById("compareBox"),
+          compareText: document.getElementById("compareText"),
+          compareDetail: document.getElementById("compareDetail"),
+          warnBox: document.getElementById("warnBox"),
+          warnText: document.getElementById("warnText")
+        };
+
+        var money0 = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0
+        });
+        var money2 = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        var monthFmt = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+
+        function readNumber(input) {
+          var v = parseFloat(input.value);
+          return isFinite(v) && v > 0 ? v : 0;
+        }
+
+        // Simulate month-by-month payoff. Returns null when the payment
+        // never brings the balance down (payment <= monthly interest).
+        function amortize(balance, annualRatePct, monthlyPayment) {
+          var monthlyRate = annualRatePct / 100 / 12;
+          if (balance <= 0) {
+            return { months: 0, totalInterest: 0, totalPaid: 0 };
+          }
+          if (monthlyPayment <= 0) return null;
+          if (monthlyRate > 0 && monthlyPayment <= balance * monthlyRate) return null;
+
+          var bal = balance;
+          var totalInterest = 0;
+          var totalPaid = 0;
+          var months = 0;
+          var MAX_MONTHS = 1200; // 100 years — a safety stop, not a real schedule
+
+          while (bal > 0 && months < MAX_MONTHS) {
+            var interest = bal * monthlyRate;
+            var due = bal + interest;
+            var pay = Math.min(monthlyPayment, due);
+            totalInterest += interest;
+            totalPaid += pay;
+            bal = due - pay;
+            months++;
+          }
+          if (bal > 0) return null;
+          return { months: months, totalInterest: totalInterest, totalPaid: totalPaid };
+        }
+
+        function durationText(months) {
+          if (months <= 0) return "0 months";
+          var years = Math.floor(months / 12);
+          var rem = months % 12;
+          var parts = [];
+          if (years > 0) parts.push(years + (years === 1 ? " year" : " years"));
+          if (rem > 0) parts.push(rem + (rem === 1 ? " month" : " months"));
+          return parts.join(", ");
+        }
+
+        function update() {
+          var balance = readNumber(els.balance);
+          var rate = readNumber(els.rate);
+          var payment = readNumber(els.payment);
+          var extra = readNumber(els.extra);
+
+          var monthlyRate = rate / 100 / 12;
+          var firstInterest = balance * monthlyRate;
+          var totalMonthly = payment + extra;
+
+          // Nothing meaningful entered yet.
+          if (balance <= 0) {
+            els.emptyState.hidden = false;
+            els.emptyState.textContent = payment > 0 || rate > 0 || extra > 0
+              ? "Add your loan balance and your finish line appears here."
+              : "Type your loan details and your finish line appears here.";
+            els.resultMain.hidden = true;
+            els.warnBox.hidden = true;
+            return;
+          }
+
+          // Payment does not cover the interest: the balance grows.
+          if (totalMonthly <= 0 || (monthlyRate > 0 && totalMonthly <= firstInterest)) {
+            els.emptyState.hidden = true;
+            els.resultMain.hidden = true;
+            els.warnBox.hidden = false;
+            if (totalMonthly <= 0) {
+              els.warnText.textContent =
+                "there's no monthly payment entered yet, so the balance can't come down. Add the amount you pay each month and you'll see your payoff date right away.";
+            } else {
+              els.warnText.textContent =
+                "right now your monthly payment doesn't cover the interest this loan charges each month (about " +
+                money2.format(firstInterest) + " on this balance). That means the balance would grow instead of shrink, month by month. " +
+                "Paying more than " + money2.format(firstInterest) + " a month is where the balance starts coming down — even a little above that line is real progress.";
+            }
+            return;
+          }
+
+          var withExtra = amortize(balance, rate, totalMonthly);
+          if (!withExtra) {
+            // Shouldn't happen given the check above, but stay kind, never broken.
+            els.emptyState.hidden = true;
+            els.resultMain.hidden = true;
+            els.warnBox.hidden = false;
+            els.warnText.textContent =
+              "at this payment the loan would take longer than a lifetime to pay off. A larger monthly payment is what brings the finish line into view.";
+            return;
+          }
+
+          els.warnBox.hidden = true;
+          els.emptyState.hidden = true;
+          els.resultMain.hidden = false;
+
+          var now = new Date();
+          var payoff = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
+          els.payoffDate.textContent = "Debt-free in " + monthFmt.format(payoff);
+          els.payoffSub.textContent =
+            "That's " + durationText(withExtra.months) + " from now, paying " +
+            money0.format(totalMonthly) + " a month.";
+
+          els.statMonths.textContent = String(withExtra.months);
+          els.statMonthly.textContent = money0.format(totalMonthly);
+          els.statInterest.textContent = money0.format(withExtra.totalInterest);
+          els.statTotal.textContent = money0.format(withExtra.totalPaid);
+
+          // Principal vs interest split of the total cost.
+          var total = withExtra.totalPaid;
+          var pPct = total > 0 ? (balance / total) * 100 : 100;
+          els.segPrincipal.style.width = pPct + "%";
+          els.segInterest.style.width = 100 - pPct + "%";
+          els.splitBar.setAttribute(
+            "aria-label",
+            "Of the total cost, " + money0.format(balance) + " is the loan itself and " +
+              money0.format(withExtra.totalInterest) + " is interest."
+          );
+          els.legendPrincipal.textContent = "Loan itself · " + money0.format(balance);
+          els.legendInterest.textContent = "Interest · " + money0.format(withExtra.totalInterest);
+
+          // Comparison against paying no extra, when extra > 0.
+          if (extra > 0) {
+            var baseline = amortize(balance, rate, payment);
+            els.compareBox.hidden = false;
+            if (baseline) {
+              var monthsSooner = baseline.months - withExtra.months;
+              var interestSaved = baseline.totalInterest - withExtra.totalInterest;
+              if (monthsSooner > 0 || interestSaved > 0) {
+                els.compareText.textContent =
+                  "Debt-free " + monthsSooner + (monthsSooner === 1 ? " month" : " months") +
+                  " sooner — " + money0.format(interestSaved) + " less interest.";
+                els.compareDetail.textContent =
+                  "Without the extra " + money0.format(extra) + " a month, you'd finish in " +
+                  monthFmt.format(new Date(now.getFullYear(), now.getMonth() + baseline.months, 1)) +
+                  " and pay " + money0.format(baseline.totalInterest) + " in interest.";
+              } else {
+                els.compareText.textContent =
+                  "That extra " + money0.format(extra) + " a month is already counted in the finish line above.";
+                els.compareDetail.textContent = "";
+              }
+            } else {
+              els.compareText.textContent =
+                "That extra " + money0.format(extra) + " a month makes all the difference.";
+              els.compareDetail.textContent =
+                "On the regular payment alone, this loan's balance wouldn't come down at all — the extra is what carries you to the finish line.";
+            }
+          } else {
+            els.compareBox.hidden = true;
+          }
+        }
+
+        ["balance", "rate", "payment", "extra"].forEach(function (key) {
+          els[key].addEventListener("input", update);
+          els[key].addEventListener("change", update);
+        });
+
+        update();
+      })();
+    </script>
+    <script data-goatcounter="https://jesuslovestyler.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>
